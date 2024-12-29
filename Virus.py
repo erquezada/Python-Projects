@@ -1,18 +1,30 @@
-from turtle import *
+import turtle
 
-# Set up the turtle environment
-speed(0)  # Maximize speed for faster drawing
-color('cyan')
-bgcolor('black')
+# Setup screen
+screen = turtle.Screen()
+screen.bgcolor("black")
 
-# Initializing the size variable
-size = 200
+# Setup turtle
+t = turtle.Turtle()
+t.pencolor("white")
+t.speed(0)  # Fastest speed
+t.hideturtle()
 
-# Drawing loop
-while size > 0:
-    right(size)       # Turn the turtle
-    forward(size * 3) # Move forward proportional to size
-    size -= 1         # Decrement size to change the shape dynamically
+# Initial parameters
+a = 0
+b = 0
 
-# End the program properly
-done()
+# Start drawing
+t.penup()
+t.goto(0, 200)
+t.pendown()
+
+# Draw pattern
+while b < 210:  # Simplified condition
+    t.forward(a)
+    t.right(b)
+    a += 3
+    b += 1
+
+# Close turtle graphics window on click
+screen.mainloop()
