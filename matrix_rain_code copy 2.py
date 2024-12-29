@@ -1,82 +1,85 @@
 import pygame
 from random import choice, randrange
 
+# Initialize pygame
 pygame.init()
 
+# Screen dimensions and settings
 WIDTH, HEIGHT = 1920, 1080
 RES = (WIDTH, HEIGHT)
+FONT_SIZE = 30
+alpha_value = 150  # For the trail effect
 
-FONT_SIZE = 35
-alpha_value = randrange(30, 40, 5)
+# Expanded character list
+chars = (
+    'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓ'
+    'ﾔﾕﾖﾗﾘﾙﾚﾛﾜｦﾝ'
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    '0123456789'
+    '!@#$%^&*()_+-=[]{}|;:\'",.<>?/`~'
+)
 
-chars = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','x','z','w','y',
-'0','1','2','3','4','5','6','7','8','9','日','ﾊ','ﾐ','ﾋ','ｰ','ｳ','ｼ','ﾅ','ﾓ','ﾆ','ｻ','ﾜ','ﾂ','ｵ','ﾘ','ｱ','ﾎ','ﾃ','ﾏ',
-'ｹ','ﾒ','ｴ','ｶ','ｷ','ﾑ','ﾕ','ﾗ','ｾ','ﾈ','ｽ','ﾀ','ﾇ','ﾍ','ｦ','ｲ','ｸ','ｺ','ｿ','ﾁ','ﾄ','ﾉ','ﾌ','ﾔ','ﾖ','ﾙ','ﾚ','ﾛ','ﾝ',
-'0','1','2','3','4','5','6','7','8','9','α','β','γ','Δ','δ','ε','ζ','η','θ','ι','κ','λ','μ','ν','ξ','ο','π','ρ','Σ',
-'σ','ς','τ','υ','φ','χ','ψ','Ω','ω','Ա','ա','Բ','Գ','Դ','դ','դ','δ','Ե','ե','Զ','զ','Է','է','Ը','ը','թ','Թ','թ','t',
-'Ժ','Ի','ի','Ι','ι','Լ','լ','Խ','խ','Ծ','ծ','Կ','կ','Κ','Ձ','ձ','Ղ','ղ','Ճ','ճ','Մ','մ','Μ','μ','Յ','յ','Ն','ն'
-'Շ','շ','Ո','Չ','չ','Պ','պ','Ջ','ջ','Ռ','ռ','Ս','ս','Վ','վ','Տ','տ','Τ','τ','Ր','ր','Ց','ց','Ւ','ւ','Փ','փ','Ք','ք',
-'Օ','օ','Ֆ','ֆ','ո','ւ','և','!','@','#','$','%','^','*','`','~','_',';','?','|','{','A','B','C','D','E','F','G','H','I',
-'J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','}']
+# Load a font that supports various character types
+font_path = "/Users/ericquezada/Downloads/Noto_Sans_JP/NotoSansJP-VariableFont_wght.ttf"  # Replace with the actual path
+font = pygame.font.Font(font_path, FONT_SIZE)
 
-font = pygame.font.SysFont('MS Mincho', FONT_SIZE)
-font_2 = pygame.font.SysFont('MS Mincho', FONT_SIZE - FONT_SIZE // 6)
-font_3 = pygame.font.SysFont('Ms Mincho', FONT_SIZE - FONT_SIZE // 3)
+# Pre-rendered characters
+green = (0, 255, 0)
+bright_green = (200, 255, 200)
+pre_rendered_chars = [font.render(char, True, green) for char in chars]
+bright_char = [font.render(char, True, bright_green) for char in chars]
 
-green_chars = [font.render(char, True, (randrange(0, 100), 255, randrange(0, 100))) for char in chars]
-green_chars_2 = [font_2.render(char, True, (40, randrange(100, 175), 40)) for char in chars]
-green_chars_3 = [font_3.render(char, True, (40, randrange(50, 100), 40)) for char in chars]
-
+# Setup screen
 screen = pygame.display.set_mode(RES)
-display_surface = pygame.Surface(RES)
+pygame.display.set_caption("Matrix Code Rain")
+display_surface = pygame.Surface(RES, pygame.SRCALPHA)
 display_surface.set_alpha(alpha_value)
-
 clock = pygame.time.Clock()
 
-
+# Symbol class
 class Symbol:
-    def __init__(self, x, y):
+    def __init__(self, x, char_set):
         self.x = x
-        self.y = y
-        self.speed = 40
-        self.value = choice(green_chars)
+        self.y = randrange(-HEIGHT, 0)
+        self.speed = randrange(2, 10)  # Varying speeds for each stream
+        self.char_set = char_set
 
     def draw(self):
-        self.value = choice(green_chars)
-        self.y = self.y + self.speed if self.y < HEIGHT else -FONT_SIZE * randrange(1, 10)
-        screen.blit(self.value, (self.x, self.y))
+        global FONT_SIZE
+        char_index = randrange(len(self.char_set))
+        # Bright leading character
+        screen.blit(bright_char[char_index], (self.x, self.y))
+        # Trailing characters
+        for i in range(1, randrange(5, 20)):
+            trail_y = self.y - i * FONT_SIZE
+            if trail_y < 0:
+                break
+            screen.blit(pre_rendered_chars[char_index], (self.x, trail_y))
 
-    def draw_2(self):
-        self.value_2 = choice(green_chars_2)
-        self.y = self.y + self.speed if self.y < HEIGHT else -FONT_SIZE * randrange(1, 10)
-        screen.blit(self.value_2, (self.x, self.y))
+        # Move the stream down, reset if off-screen
+        self.y += self.speed
+        if self.y > HEIGHT:
+            self.y = -randrange(10, 100)
+            self.speed = randrange(2, 10)  # Reset speed
 
-    def draw_3(self):
-        self.value_3 = choice(green_chars_3)
-        self.y = self.y + self.speed if self.y < HEIGHT else -FONT_SIZE * randrange(1, 10)
-        screen.blit(self.value_3, (self.x, self.y))
+# Generate symbols for the screen width
+symbols = [Symbol(x, pre_rendered_chars) for x in range(0, WIDTH, FONT_SIZE)]
 
-
-symbols = [Symbol(x, randrange(-HEIGHT, 0)) for x in range(0, WIDTH, FONT_SIZE * 3)]
-symbols_2 = [Symbol(x, randrange(-HEIGHT, 0)) for x in range(FONT_SIZE, WIDTH, FONT_SIZE * 3)]
-symbols_3 = [Symbol(x, randrange(-HEIGHT, 0)) for x in range(FONT_SIZE * 2, WIDTH, FONT_SIZE * 3)]
-
+# Main loop
 run = True
 while run:
+    screen.fill((0, 0, 0))  # Black background
+    display_surface.fill((0, 0, 0, alpha_value))  # Trail effect
 
-    screen.blit(display_surface, (0, 0))
-    display_surface.fill(pygame.Color('black'))
-
-    [symbol.draw() for symbol in symbols]
-    [symbol_2.draw_2() for symbol_2 in symbols_2]
-    [symbol_3.draw_3() for symbol_3 in symbols_3]
-
-    pygame.time.delay(140)
+    # Draw symbols
+    for symbol in symbols:
+        symbol.draw()
 
     pygame.display.update()
-
     clock.tick(60)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
+
+pygame.quit()
